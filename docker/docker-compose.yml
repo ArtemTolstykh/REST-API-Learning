@@ -34,9 +34,12 @@ services:
       DB_USER: user
       DB_PASS: pass
       API_KEY: ${API_KEY}
-      XDEBUG_MODE: develop,debug
+      PHP_IDE_CONFIG: "serverName=docker"
+      XDEBUG_MODE: "develop,debug"
     volumes:
-      - ../public:/var/www/html       # важно: на уровень выше
+      - ../public:/var/www/html
+      - ../src:/var/www/src
+      - ../controllers:/var/www/controllers
     depends_on:
       mysql:
         condition: service_healthy
