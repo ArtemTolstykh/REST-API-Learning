@@ -7,11 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res  = await fetch('/ajax/sort-products.php?sort=' + encodeURIComponent(sortValue), {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'same-origin' // тянем cookie сессии
+                credentials: 'same-origin'
             });
-
             const html = await res.text();
-            grid.innerHTML = html; // заменяем только список карточек
+            grid.innerHTML = html;
             history.replaceState(null, '', `?sort=${encodeURIComponent(sortValue)}`);
         } finally {
             grid.removeAttribute('aria-busy');
@@ -20,4 +19,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     select.addEventListener('change', () => reload(select.value));
 });
-

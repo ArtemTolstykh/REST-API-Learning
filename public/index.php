@@ -2,20 +2,23 @@
 declare(strict_types=1);
 
 require __DIR__ . '/../controllers/ProductsController.php';
-//require __DIR__ . '/../controllers/ProductFilter.php';
 
-//use App\Controllers\ProductFilter;
 use App\Controllers\ProductsController;
 
-session_start();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 $arResult = ProductsController::fetchAll();
 $_SESSION['products_list'] = $arResult;
 
-//ProductFilter::byName($arResult);
-//ProductFilter::byPriceCheaper($arResult);
+$initialSort = $_GET['sort'] ?? 'title';
 
-//var_dump($arResult);
+ob_start();
+$_GET['sort'] = $initialSort;
+require __DIR__ . '/ajax/sort-products.php';
+$cardsHtml = ob_get_clean();
+
 ?>
 
 <!doctype html>
@@ -45,33 +48,15 @@ $_SESSION['products_list'] = $arResult;
             <input class="input" type="search" placeholder="Поиск по названию…" id="searchInput"
                    data-hook="search" />
             <select class="select" id="sortSelect" data-hook="sort">
-                <option value="title">По названию</option>
-                <option value="-price">Дороже</option>
-                <option value="price">Дешевле</option>
+                <option value="title" <?= $initialSort==='title'?'selected':''?>>По названию</option>
+                <option value="-price" <?= $initialSort==='-price'?'selected':''?>>Дороже</option>
+                <option value="price" <?= $initialSort==='price'?'selected':''?>>Дешевле</option>
             </select>
             <button class="btn" id="refreshBtn" data-action="reload">Обновить</button>
         </div>
 
         <div class="grid" id="productsGrid" data-list="products">
-            <?php foreach ($arResult as $arItems): ?>
-                <article class="card" data-id="<?= (int)$arItems['id'] ?>">
-                    <div class="card__body">
-                        <div class="card__title"><?= htmlspecialchars($arItems['name']) ?></div>
-                        <div class="card__meta">
-                            <span class="badge">₽ <?= (float)$arItems['price'] ?></span><br>
-                            <?php if ($arItems['remaining'] > 0):?>
-                                <span class="badge badge--ok">В наличии, <?= (int)$arItems['remaining'] ?> шт.</span>
-                            <?php else: ?>
-                                <span class="badge badge--no">Нет в наличии</span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="card__actions">
-                            <button class="btn btn--primary">В корзину</button>
-                            <button class="btn btn--ghost" disabled>Подробнее</button>
-                        </div>
-                    </div>
-                </article>
-            <?php endforeach; ?>
+            <?= $cardsHtml?>
         </div>
 
         <div class="footer">

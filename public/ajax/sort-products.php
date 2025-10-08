@@ -5,24 +5,25 @@ use App\Controllers\ProductFilter;
 
 require __DIR__ . '/../../controllers/ProductFilter.php';
 
-session_start();
-
 header('Content-Type: text/html; charset=UTF-8');
 
-$sort = $_GET['sort'] ?? 'title';
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 $products = $_SESSION['products_list'] ?? [];
 
-if (!$products) {exit;}
+$sort = $_GET['sort'] ?? 'title';
 
 switch ($sort) {
     case 'title':
         ProductFilter::byName($products);
         break;
     case 'price':
-        ProductFilter::byPriceExpensive($products);
+        ProductFilter::byPriceCheaper($products);
         break;
     case '-price':
-        ProductFilter::byPriceCheaper($products);
+        ProductFilter::byPriceExpensive($products);
         break;
     default:
         ProductFilter::byName($products);
@@ -50,4 +51,4 @@ foreach ($products as $p):
             </div>
         </div>
     </article>
-<?php endforeach;
+<?php endforeach; ?>

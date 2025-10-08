@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/../controllers/controllerAllProducts.php';
+require __DIR__ . '/../controllers/ProductsController.php';
 
 use App\Controllers\ProductsController;
 
