@@ -1,11 +1,19 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/../controllers/controllerAllProducts.php';
+require __DIR__ . '/../controllers/ProductsController.php';
+//require __DIR__ . '/../controllers/ProductFilter.php';
 
+//use App\Controllers\ProductFilter;
 use App\Controllers\ProductsController;
 
+session_start();
+
 $arResult = ProductsController::fetchAll();
+$_SESSION['products_list'] = $arResult;
+
+//ProductFilter::byName($arResult);
+//ProductFilter::byPriceCheaper($arResult);
 
 //var_dump($arResult);
 ?>
@@ -16,7 +24,7 @@ $arResult = ProductsController::fetchAll();
     <meta charset="utf-8" />
     <title>Маркетплейс — Витрина</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="styles.css" rel="stylesheet" />
+    <link href="styles/styles.css" rel="stylesheet" />
 </head>
 <body>
 <header class="container header">
@@ -37,8 +45,7 @@ $arResult = ProductsController::fetchAll();
             <input class="input" type="search" placeholder="Поиск по названию…" id="searchInput"
                    data-hook="search" />
             <select class="select" id="sortSelect" data-hook="sort">
-                <option value="-created_at">Сначала новые</option>
-                <option value="title">По названию (А→Я)</option>
+                <option value="title">По названию</option>
                 <option value="-price">Дороже</option>
                 <option value="price">Дешевле</option>
             </select>
@@ -46,26 +53,24 @@ $arResult = ProductsController::fetchAll();
         </div>
 
         <div class="grid" id="productsGrid" data-list="products">
-            <!-- СЮДА РЕНДЕРИТСЯ СПИСОК ТОВАРОВ ЧЕРЕЗ API -->
-            <!-- Пример карточки для визуала (будет удалена твоим JS): -->
             <?php foreach ($arResult as $arItems): ?>
-            <article class="card" data-skeleton>
-                <div class="card__body">
-                    <div class="card__title"><?php echo $arItems['name'] ?></div>
-                    <div class="card__meta">
-                        <span class="badge">₽ <?php echo $arItems['price']?></span>
-                        <?php if($arItems['remaining'] > 0):?>
-                            <span class="badge badge--ok">В наличии, <?php echo $arItems['remaining']?> шт.</span>
-                        <?php else: ?>
-                            <span class="badge badge--no">Нет в наличии</span>
-                        <?php endif; ?>
+                <article class="card" data-id="<?= (int)$arItems['id'] ?>">
+                    <div class="card__body">
+                        <div class="card__title"><?= htmlspecialchars($arItems['name']) ?></div>
+                        <div class="card__meta">
+                            <span class="badge">₽ <?= (float)$arItems['price'] ?></span><br>
+                            <?php if ($arItems['remaining'] > 0):?>
+                                <span class="badge badge--ok">В наличии, <?= (int)$arItems['remaining'] ?> шт.</span>
+                            <?php else: ?>
+                                <span class="badge badge--no">Нет в наличии</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="card__actions">
+                            <button class="btn btn--primary">В корзину</button>
+                            <button class="btn btn--ghost" disabled>Подробнее</button>
+                        </div>
                     </div>
-                    <div class="card__actions">
-                        <button class="btn btn--primary" disabled>В корзину</button>
-                        <button class="btn btn--ghost" disabled>Подробнее</button>
-                    </div>
-                </div>
-            </article>
+                </article>
             <?php endforeach; ?>
         </div>
 
@@ -96,7 +101,7 @@ $arResult = ProductsController::fetchAll();
         </div>
     </aside>
 </main>
-
 <footer class="container footer">© Маркетплейс, учебный проект</footer>
+<script src="js/filter.js"></script>
 </body>
 </html>

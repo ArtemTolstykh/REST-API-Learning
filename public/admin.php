@@ -1,10 +1,22 @@
+<?php
+declare(strict_types=1);
+
+require __DIR__ . '/../controllers/controllerAllProducts.php';
+
+use App\Controllers\ProductsController;
+
+$arResult = ProductsController::fetchAll();
+
+//var_dump($arResult);
+?>
+
 <!doctype html>
 <html lang="ru">
 <head>
     <meta charset="utf-8" />
     <title>Маркетплейс — Админка</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="styles.css" rel="stylesheet" />
+    <link href="styles/styles.css" rel="stylesheet" />
 </head>
 <body>
 <header class="container header">
@@ -85,12 +97,13 @@
                 </thead>
                 <tbody id="productsTable" data-list="admin:products">
                 <!-- СЮДА РЕНДЕРИТСЯ ТАБЛИЦА ТОВАРОВ -->
+                <?php foreach ($arResult as $arItem): ?>
                 <tr data-skeleton>
-                    <td>1</td>
-                    <td>Пример товара</td>
-                    <td>999.00</td>
-                    <td>12</td>
-                    <td class="helper">https://picsum.photos/seed/1/640/480</td>
+                    <td><?php echo $arItem['id']?></td>
+                    <td><?php echo $arItem['name']?></td>
+                    <td><?php echo $arItem['price']?></td>
+                    <td><?php echo $arItem['remaining'] ?: 'Товара не осталось'; ?></td>
+                    <td class="helper"><?php echo isset($arItem['img']) ? $arItem['img'] : 'Изображение отсутствует'; ?></td>
                     <td>
                         <div style="display:flex; gap:8px;">
                             <button class="btn" disabled>Редактировать</button>
@@ -98,6 +111,7 @@
                         </div>
                     </td>
                 </tr>
+                <?php endforeach; ?>
                 </tbody>
             </table>
 
@@ -109,5 +123,6 @@
 </main>
 
 <footer class="container footer">© Маркетплейс, админ-панель</footer>
+<script src="js/filter.js"></script>
 </body>
 </html>
