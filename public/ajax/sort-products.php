@@ -2,33 +2,52 @@
 declare(strict_types=1);
 
 use App\Controllers\ProductFilter;
+use App\Controllers\AdminProductFilter;
+
+$isDirect = realpath(__FILE__)  === realpath($_SERVER['SCRIPT_FILENAME'] ?? '');
 
 require __DIR__ . '/../../controllers/ProductFilter.php';
-
-header('Content-Type: text/html; charset=UTF-8');
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
+if ($isDirect && !headers_sent()) {
+    header('Content-Type: text/html; charset=UTF-8');
+}
 
 $products = $_SESSION['products_list'] ?? [];
-
 $sort = $_GET['sort'] ?? 'title';
+$view = $_GET['view'] ?? 'cards';
 
 switch ($sort) {
     case 'title':
         ProductFilter::byName($products);
         break;
     case 'price':
-        ProductFilter::byPriceCheaper($products);
+        ProductFilter::byPriceAsc($products);
         break;
     case '-price':
-        ProductFilter::byPriceExpensive($products);
+        ProductFilter::byPriceDesc($products);
+        break;
+    case '-stock':
+        AdminProductFilter::byRemainingDesc($products);
+        break;
+    case 'stock':
+        AdminProductFilter::byRemainingAsc($products);
         break;
     default:
         ProductFilter::byName($products);
 }
 
+if ($view === 'admin') {
+    renderAdminRows($products);
+} else {
+    renderCardGrid($products);
+}
+
+if ($isDirect) {exit();} else {return;}
+
+function renderCardGrid(array $products): void {
 foreach ($products as $p):
     $name = htmlspecialchars($p['name'] ?? '', ENT_QUOTES, 'UTF-8');
     $price = number_format((float)($p['price'] ?? 0), 2, ',', ' ');
@@ -51,4 +70,30 @@ foreach ($products as $p):
             </div>
         </div>
     </article>
-<?php endforeach; ?>
+<?php endforeach;
+}
+
+function renderAdminRows($products): void {
+    foreach ($products as $p):
+        $id   = (int)($p['id'] ?? 0);
+        $name = htmlspecialchars($p['name'] ?? '', ENT_QUOTES, 'UTF-8');
+        $price = (string)($p['price'] ?? '0');
+        $remaining = (int)($p['remaining'] ?? 0);
+        $img  = htmlspecialchars($p['img'] ?? 'Изображение отсутствует', ENT_QUOTES, 'UTF-8');
+        ?>
+        <tr data-skeleton>
+            <td><?= $id ?></td>
+            <td><?= $name ?></td>
+            <td><?= $price ?></td>
+            <td><?= $remaining > 0 ? $remaining : 'Товара не осталось' ?></td>
+            <td class="helper"><?= $img ?></td>
+            <td>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn" disabled>Редактировать</button>
+                    <button class="btn btn--danger" disabled>Удалить</button>
+                </div>
+            </td>
+        </tr>
+    <?php endforeach;
+}
+

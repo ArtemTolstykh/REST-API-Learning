@@ -17,16 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 function env(string $key, ?string $default=null): ?string {
     return $_ENV[$key] ?? getenv($key) ?: $default;
 }
+
 function json_input(): array {
     $raw = file_get_contents('php://input');
     $data = json_decode($raw ?: '[]', true);
     return is_array($data) ? $data : [];
 }
+
 function respond(int $code, $payload): void {
     http_response_code($code);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE);
     exit;
 }
+
 function require_api_key_for_write(): void {
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     if (in_array($method, ['POST','PUT','DELETE'], true)) {

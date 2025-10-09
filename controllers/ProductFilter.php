@@ -14,7 +14,7 @@ class ProductFilter
      * @param array $products
      * @return void
      */
-    public static function byName(array &$products): void
+    public static function byName(array &$products): void //TODO не самое лучшее решение, изменить подход. Сокрытие потенциального фатала.
     {
         $locate = 'ru_RU';
         $useIntl = class_exists('\Collator');
@@ -32,7 +32,7 @@ class ProductFilter
         }
 
         usort($decorated, function ($a, $b) use ($collator, $useIntl) {
-            if ($useIntl) {
+            if ($useIntl) { // TODO убрать проверку
                 $cmp = $collator->compare($a['name'], $b['name']);
                 if ($cmp !== 0) return $cmp;
             } else {
@@ -75,13 +75,11 @@ class ProductFilter
      * @param array $products
      * @return void
      */
-    public static function byPriceExpensive(array &$products): void
+    public static function byPriceDesc(array &$products): void
     {
         uasort($products, function ($a, $b) {
             return $b['price'] <=> $a['price'];
         });
-
-        unset($products);
     }
 
     /**
@@ -90,13 +88,39 @@ class ProductFilter
      * @param array $products
      * @return void
      */
-    public static function byPriceCheaper(array &$products): void
+    public static function byPriceAsc(array &$products): void
     {
         uasort($products, function ($a, $b) {
             return $a['price'] <=> $b['price'];
         });
+    }
+}
 
-        unset($products);
+class AdminProductFilter extends ProductFilter
+{
+
+    /**
+     * Фильтрует остаток по возрастанию
+     *
+     * @param array $products
+     * @return void
+     */
+    public static function byRemainingAsc(array &$products): void {
+        usort($products, function ($a, $b) {
+            return $a['remaining'] <=> $b['remaining'];
+        });
+    }
+
+    /**
+     * Фильтрует остаток по убыванию
+     *
+     * @param array $products
+     * @return void
+     */
+    public static function byRemainingDesc(array &$products): void {
+        usort($products, function ($a, $b) {
+            return $b['remaining'] <=> $a['remaining'];
+        });
     }
 }
 

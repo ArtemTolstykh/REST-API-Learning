@@ -7,6 +7,8 @@ use ErrorException;
 
 class ProductsController
 {
+    //private string $url = TODO url
+
     public static function fetchAll(): array
     {
         $url = 'http://localhost/api/products';

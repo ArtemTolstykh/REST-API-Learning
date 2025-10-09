@@ -5,9 +5,20 @@ require __DIR__ . '/../controllers/ProductsController.php';
 
 use App\Controllers\ProductsController;
 
-$arResult = ProductsController::fetchAll();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
-//var_dump($arResult);
+$arResult = ProductsController::fetchAll();
+$_SESSION['products_list'] = $arResult;
+
+$initialSort = $_GET['sort'] ?? 'title';
+
+ob_start();
+$_GET['sort'] = $initialSort;
+$_GET['view'] = 'admin';
+require __DIR__ . '/ajax/sort-products.php';
+$rowsHtml = ob_get_clean();
 ?>
 
 <!doctype html>
@@ -72,15 +83,14 @@ $arResult = ProductsController::fetchAll();
     <section class="panel">
         <div class="toolbar">
             <input class="input" type="search" placeholder="Поиск по названию…" id="adminSearch" data-hook="admin:search" />
-            <select class="select" id="adminSort" data-hook="admin:sort">
-                <option value="-created_at">Сначала новые</option>
-                <option value="title">По названию (А→Я)</option>
+            <select class="select" id="sortSelect" data-hook="sort">
+                <option value="title">По названию</option>
                 <option value="-price">Дороже</option>
                 <option value="price">Дешевле</option>
                 <option value="-stock">Больше остаток</option>
                 <option value="stock">Меньше остаток</option>
             </select>
-            <button class="btn" id="adminRefresh" data-action="admin:reload">Обновить</button>
+            <button class="btn" id="refreshBtn" data-action="reload">Обновить</button>
         </div>
 
         <div class="panel" style="padding:0;">
@@ -96,22 +106,7 @@ $arResult = ProductsController::fetchAll();
                 </tr>
                 </thead>
                 <tbody id="productsTable" data-list="admin:products">
-                <!-- СЮДА РЕНДЕРИТСЯ ТАБЛИЦА ТОВАРОВ -->
-                <?php foreach ($arResult as $arItem): ?>
-                <tr data-skeleton>
-                    <td><?php echo $arItem['id']?></td>
-                    <td><?php echo $arItem['name']?></td>
-                    <td><?php echo $arItem['price']?></td>
-                    <td><?php echo $arItem['remaining'] ?: 'Товара не осталось'; ?></td>
-                    <td class="helper"><?php echo isset($arItem['img']) ? $arItem['img'] : 'Изображение отсутствует'; ?></td>
-                    <td>
-                        <div style="display:flex; gap:8px;">
-                            <button class="btn" disabled>Редактировать</button>
-                            <button class="btn btn--danger" disabled>Удалить</button>
-                        </div>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
+                    <?= $rowsHtml?>
                 </tbody>
             </table>
 
@@ -123,6 +118,6 @@ $arResult = ProductsController::fetchAll();
 </main>
 
 <footer class="container footer">© Маркетплейс, админ-панель</footer>
-<script src="js/filter.js"></script>
+<script src="js/products-ui.js"></script>
 </body>
 </html>

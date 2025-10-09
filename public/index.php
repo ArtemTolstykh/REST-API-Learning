@@ -9,13 +9,14 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-$arResult = ProductsController::fetchAll();
+$arResult = ProductsController::fetchAll(); //TODO использовать не массив а модель, modelViewController паттерн проектирования
 $_SESSION['products_list'] = $arResult;
 
 $initialSort = $_GET['sort'] ?? 'title';
 
 ob_start();
 $_GET['sort'] = $initialSort;
+$_GET['view'] = 'cards';
 require __DIR__ . '/ajax/sort-products.php';
 $cardsHtml = ob_get_clean();
 
@@ -87,6 +88,6 @@ $cardsHtml = ob_get_clean();
     </aside>
 </main>
 <footer class="container footer">© Маркетплейс, учебный проект</footer>
-<script src="js/filter.js"></script>
+<script src="js/products-ui.js"></script>
 </body>
 </html>

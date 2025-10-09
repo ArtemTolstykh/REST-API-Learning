@@ -3,7 +3,7 @@ namespace App;
 
 use PDO;
 
-class ProductsRepository {
+class ProductsRepository { //TODO реализация на абстрактном классе, как ORM. Почитать про принцип работы ORM.
     public function __construct(private PDO $pdo)
     {
 
@@ -11,7 +11,7 @@ class ProductsRepository {
 
     public function findAll(): array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM Products ORDER BY id DESC");
+        $stmt = $this->pdo->prepare("SELECT * FROM Products ORDER BY id DESC"); //Todo заменить селекты на класс ProductRepository
         return $this->pdo->query($stmt)->fetchAll();
     }
 
