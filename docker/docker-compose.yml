@@ -4,7 +4,7 @@ services:
     container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: 5647382910
-      MYSQL_DATABASE: rest_test        # <-- совпадает с DB_NAME
+      MYSQL_DATABASE: rest_test
       MYSQL_USER: user
       MYSQL_PASSWORD: pass
     volumes:
@@ -20,14 +20,16 @@ services:
       retries: 5
 
   api:
+    user: "1000:1000"
+    working_dir: /var/www
     build:
-      context: .                      # Dockerfile в rest/docker
+      context: .            # как и раньше
       dockerfile: Dockerfile
     container_name: php_api
     env_file:
       - ../.env
     ports:
-      - "8080:80"                     # Apache слушает 80 внутри
+      - "8080:80"           # Apache внутри слушает 80
     environment:
       DB_HOST: mysql
       DB_NAME: rest_test
@@ -35,11 +37,14 @@ services:
       DB_PASS: pass
       API_KEY: ${API_KEY}
       PHP_IDE_CONFIG: "serverName=docker"
-      XDEBUG_MODE: "develop,debug"
+      XDEBUG_MODE: "develop,debug"      # Xdebug возьмёт режим из env
+      COMPOSER_MEMORY_LIMIT: "-1"
+      COMPOSER_ALLOW_SUPERUSER: "1"
     volumes:
-      - ../public:/var/www/html
+      - ../public:/var/www/public
       - ../src:/var/www/src
-      - ../controllers:/var/www/controllers
+      - ../composer.json:/var/www/composer.json
+      - ../composer.lock:/var/www/composer.lock
     depends_on:
       mysql:
         condition: service_healthy

@@ -1,24 +1,9 @@
 <?php
-declare(strict_types=1);
+require_once __DIR__ . '/header.php';
 
-require __DIR__ . '/../controllers/ProductsController.php';
-
-use App\Controllers\ProductsController;
-
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
-
-$arResult = ProductsController::fetchAll();
-$_SESSION['products_list'] = $arResult;
-
-$initialSort = $_GET['sort'] ?? 'title';
-
-ob_start();
-$_GET['sort'] = $initialSort;
+global $rowsHtml;
 $_GET['view'] = 'admin';
-require __DIR__ . '/ajax/sort-products.php';
-$rowsHtml = ob_get_clean();
+
 ?>
 
 <!doctype html>
@@ -92,7 +77,6 @@ $rowsHtml = ob_get_clean();
             </select>
             <button class="btn" id="refreshBtn" data-action="reload">Обновить</button>
         </div>
-
         <div class="panel" style="padding:0;">
             <table aria-label="Товары">
                 <thead>

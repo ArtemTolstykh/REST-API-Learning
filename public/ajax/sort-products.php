@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-use App\Controllers\ProductFilter;
-use App\Controllers\AdminProductFilter;
+require __DIR__ . '/../../vendor/autoload.php';
+
+use App\Http\Controllers\AdminProductFilter;
+use App\Http\Controllers\ProductFilter;
 
 $isDirect = realpath(__FILE__)  === realpath($_SERVER['SCRIPT_FILENAME'] ?? '');
-
-require __DIR__ . '/../../controllers/ProductFilter.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
